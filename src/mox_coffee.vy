@@ -10,7 +10,6 @@ MINIMUM_USD: public(constant(uint256)) = as_wei_value(5, "ether")
 OWNER: public(immutable(address))
 PRICE_FEED: public(immutable(AggregatorV3Interface))
 
-price_feed: AggregatorV3Interface
 buyers: public(DynArray[address, 100]) #limited to 100 buyers
 totalBuyers: uint256
 
@@ -37,6 +36,10 @@ def withdraw():
     self.buyers = [] # reset buyers array after every withdrawal
     self.totalBuyers = 0
 
+@external 
+def get_in_usd(eth_amount: uint256) -> uint256:
+    return get_price_helper._get_eth_to_usd_rate(PRICE_FEED, eth_amount)
+
 # -------------------------------------- #
 
 # --|| Internal Defs ||-- #
@@ -44,7 +47,7 @@ def withdraw():
 @internal 
 @payable
 def _buy_coffee():
-    usd_value_of_eth: uint256 = get_price_helper._get_eth_to_usd_rate(self.price_feed, msg.value)
+    usd_value_of_eth: uint256 = get_price_helper._get_eth_to_usd_rate(PRICE_FEED, msg.value)
     assert usd_value_of_eth >= MINIMUM_USD
     self.buyers.append(msg.sender)
     self.totalBuyers = self.totalBuyers + 1
@@ -60,12 +63,12 @@ def getTotalBuyers() -> uint256:
 
 @external 
 def getRate(amount: uint256) -> uint256:
-    return get_price_helper._get_eth_to_usd_rate(self.price_feed, amount)
+    return get_price_helper._get_eth_to_usd_rate(PRICE_FEED, amount)
 
 @external
 @view 
 def getPriceFeed() -> AggregatorV3Interface:
-    return self.price_feed
+    return PRICE_FEED
     
 # -------------------------------------- #
 
