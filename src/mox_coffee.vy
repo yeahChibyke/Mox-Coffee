@@ -48,7 +48,7 @@ def get_in_usd(eth_amount: uint256) -> uint256:
 @payable
 def _buy_coffee():
     usd_value_of_eth: uint256 = get_price_helper._get_eth_to_usd_rate(PRICE_FEED, msg.value)
-    assert usd_value_of_eth >= MINIMUM_USD
+    assert usd_value_of_eth >= MINIMUM_USD, "Minimum USD requirement not met!!!"
     self.buyers.append(msg.sender)
     self.totalBuyers = self.totalBuyers + 1
 

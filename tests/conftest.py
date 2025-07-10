@@ -1,8 +1,12 @@
+# --- Imports --- #
+
 import pytest 
 
 from moccasin.config import get_active_network 
 from script.deploy import deploy_coffee
 from script.deploy_mocks import deploy_feed
+
+# --- Session Fixtures --- #
 
 @pytest.fixture(scope = "session")
 def owner_account():
@@ -11,6 +15,8 @@ def owner_account():
 @pytest.fixture(scope = "session")
 def eth_usd():
     return deploy_feed()
+
+# --- Function Fixtures --- #
 
 @pytest.fixture(scope = "function")
 def coffee(eth_usd):
