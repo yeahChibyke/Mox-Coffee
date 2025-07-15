@@ -31,7 +31,7 @@ def buy_coffee():
 
 @external 
 def withdraw():
-    assert msg.sender == OWNER
+    assert msg.sender == OWNER, "Not the owner!!!"
     send(msg.sender, self.balance)
     self.buyers = [] # reset buyers array after every withdrawal
     self.totalBuyers = 0
