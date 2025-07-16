@@ -6,4 +6,5 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "moccasin>=0.4.2",
+    "vyper>=0.4.3",
 ]
