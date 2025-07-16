@@ -5,6 +5,10 @@ from interfaces import AggregatorV3Interface
 
 import get_price_helper
 
+# Errors
+ERROR_NOT_OWNER: public(constant(String[25])) = "Not the contract owner!!!"
+ERROR_NOT_MINIMUM_USD: public(constant(String[34])) = "Minimum USD requirement not met!!!"
+
 # Constants & Immutables
 MINIMUM_USD: public(constant(uint256)) = as_wei_value(5, "ether")
 OWNER: public(immutable(address))
@@ -26,7 +30,7 @@ def __init__(address_to_use: address):
 
 @internal 
 def _only_owner():
-    assert msg.sender == OWNER, "Not the contract owner!!!"
+    assert msg.sender == OWNER, ERROR_NOT_OWNER
 
 # --|| External Defs ||-- #
 
@@ -54,7 +58,7 @@ def get_in_usd(eth_amount: uint256) -> uint256:
 @payable
 def _buy_coffee():
     usd_value_of_eth: uint256 = get_price_helper._get_eth_to_usd_rate(PRICE_FEED, msg.value)
-    assert usd_value_of_eth >= MINIMUM_USD, "Minimum USD requirement not met!!!"
+    assert usd_value_of_eth >= MINIMUM_USD, ERROR_NOT_MINIMUM_USD
     self.buyers.append(msg.sender)
     self.totalBuyers = self.totalBuyers + 1
 
@@ -84,4 +88,3 @@ def getPriceFeed() -> AggregatorV3Interface:
 @payable 
 def __default__():
     self._buy_coffee()
-
