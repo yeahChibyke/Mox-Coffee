@@ -36,7 +36,7 @@ def test_can_withdraw_from_one_buyer(coffee_bought, owner_account):
 
     final_pool: int = boa.env.get_balance(coffee_bought.address) # 0
     final_wallet: int = boa.env.get_balance(coffee_bought.OWNER())
-    breakpoint()
+    # breakpoint()
 
 # --- Reverts --- #
 
@@ -52,4 +52,10 @@ def test_cannot_withdraw_if_not_owner(coffee_bought):
     with boa.env.prank(alice):
         with boa.reverts("Not the owner!!!"):
             coffee_bought.withdraw()
+
+# -- Test Potential Bug -- #
+
+def test_potential_bug(coffee_bought):
+    initial_wallet: int = boa.env.get_balance(coffee_bought.OWNER()) # should be zero.. why is this not zero???
+    breakpoint()
 
