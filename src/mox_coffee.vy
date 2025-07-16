@@ -22,6 +22,12 @@ def __init__(address_to_use: address):
 
 # -------------------------------------- #
 
+# -- || Modifiers || -- #
+
+@internal 
+def _only_owner():
+    assert msg.sender == OWNER, "Not the contract owner!!!"
+
 # --|| External Defs ||-- #
 
 @external 
@@ -31,10 +37,10 @@ def buy_coffee():
 
 @external 
 def withdraw():
-    assert msg.sender == OWNER, "Not the owner!!!"
-    send(msg.sender, self.balance)
+    self._only_owner()
     self.buyers = [] # reset buyers array after every withdrawal
     self.totalBuyers = 0
+    raw_call(OWNER, b"", value = self.balance)
 
 @external 
 def get_in_usd(eth_amount: uint256) -> uint256:

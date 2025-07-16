@@ -2,8 +2,7 @@
 
 from eth_utils import to_wei
 import boa
-from tests.conftest import AMOUNT
-from tests.conftest import alice
+from tests.conftest import AMOUNT, alice, bob, clara 
 
 # --- Tests --- #
 
@@ -21,6 +20,23 @@ def test_can_buy_coffee(coffee_bought):
     assert coffee_bought.getTotalBuyers() == 1
     # breakpoint()
     # assert first_coffee_buyer == alice # --> This particular assert fails
+
+def test_many_can_buy_coffee(many_coffee_bought):
+    # Assert
+    assert boa.env.get_balance(many_coffee_bought.address) == (AMOUNT * 3)
+    assert many_coffee_bought.getTotalBuyers() == 3
+
+def test_can_withdraw_from_one_buyer(coffee_bought, owner_account):
+    initial_pool: int = boa.env.get_balance(coffee_bought.address) # 1_000_000_000_000_000_000.00
+    assert initial_pool == (AMOUNT)
+
+    initial_wallet: int = boa.env.get_balance(coffee_bought.OWNER()) # 1000_000_000_000_000_000_000.00
+    with boa.env.prank(owner_account.address):
+        coffee_bought.withdraw()
+
+    final_pool: int = boa.env.get_balance(coffee_bought.address) # 0
+    final_wallet: int = boa.env.get_balance(coffee_bought.OWNER())
+    breakpoint()
 
 # --- Reverts --- #
 

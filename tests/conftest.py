@@ -9,7 +9,7 @@ import boa
 
 # -- Variables -- #
 
-AMOUNT = to_wei(0.002, "ether")
+AMOUNT = to_wei(1, "ether")
 alice = boa.env.generate_address("first_buyer")
 bob = boa.env.generate_address("second_buyer")
 clara = boa.env.generate_address("third_buyer")
@@ -22,7 +22,7 @@ def owner_account():
 
 @pytest.fixture(scope = "session")
 def eth_usd():
-    return deploy_feed()
+    return deploy_feed() 
 
 # --- Function Fixtures --- #
 
