@@ -8,20 +8,23 @@ from tests.conftest import AMOUNT
 
 
 def test_price_feed_is_correct(coffee, eth_usd):
-    assert coffee.PRICE_FEED() == eth_usd.address, "Price feed mismatch!!!"
+    assert coffee.getPriceFeed() == eth_usd.address, "Price feed mismatch!!!"
 
 
 def test_starting_value(coffee, owner_account):
     assert coffee.MINIMUM_USD() == to_wei(5, "ether"), "Minimum USD mismatch!!!"
     assert coffee.OWNER() == owner_account.address, "Msg.sender mismatch!!!"
 
+def test_rate_is_accurate(coffee):
+    eth_amount: int = to_wei(1, "ether")
+    assert coffee.getRate(eth_amount) == 2500e18 
 
 def test_can_buy_coffee(coffee_bought, alice):
     # Assert
     first_coffee_buyer = coffee_bought.buyers(0)
     assert boa.env.get_balance(coffee_bought.address) == (AMOUNT)
     assert coffee_bought.getTotalBuyers() == 1
-    assert first_coffee_buyer == alice  # --> This particular assert fails
+    assert first_coffee_buyer == alice 
 
 
 def test_many_can_buy_coffee(many_coffee_bought):
@@ -53,6 +56,38 @@ def test_can_withdraw_from_one_buyer(coffee_bought, owner_account):
     )
 
 
+def test_can_withdraw_from_many_buyers(many_coffee_bought, owner_account):
+    initial_pool: int = boa.env.get_balance(many_coffee_bought.address)
+    assert initial_pool == (AMOUNT * 3)
+
+    initial_wallet: int = boa.env.get_balance(many_coffee_bought.OWNER())
+    with boa.env.prank(owner_account.address):
+        many_coffee_bought.withdraw()
+
+    final_pool: int = boa.env.get_balance(many_coffee_bought.address)
+    final_wallet: int = boa.env.get_balance(many_coffee_bought.OWNER())
+
+    assert final_pool == 0, "Pool did not empty after withdrawal!!!"
+    assert final_wallet == initial_wallet + initial_pool, "Wallet did not receive funds after withdrawal!!!"
+
+
+def test_fallback(coffee):
+    dean = boa.env.generate_address("dean")
+    boa.env.set_balance(dean, AMOUNT)
+    initialDeanWallet: int = boa.env.get_balance(dean)
+
+    initial_pool: int = boa.env.get_balance(coffee.address)
+
+    with boa.env.prank(dean):
+        coffee.__default__(value = AMOUNT)
+
+    finalDeanWallet: int = boa.env.get_balance(dean)
+    final_pool: int = boa.env.get_balance(coffee.address)
+
+    assert finalDeanWallet == initialDeanWallet - AMOUNT, "Failed to buy coffee via fallback!!!"
+    assert final_pool == initial_pool + AMOUNT, "Fallback failed!!!"
+
+
 # --- Reverts --- #
 
 
@@ -71,12 +106,3 @@ def test_cannot_withdraw_if_not_owner(coffee_bought, alice):
             coffee_bought.withdraw()
 
 
-# -- Test Potential Bug -- #
-
-
-def test_potential_bug(coffee_bought):
-    # @dev normal behavior deal for local or fork network
-    # https://github.com/cyfrin/moccasin/blob/3b7f6aebd8ce8ec841a3eef783338ee376a0ed6d/moccasin/_sys_path_and_config_setup.py#L222-L223
-    initial_wallet: int = boa.env.get_balance(
-        coffee_bought.OWNER()
-    )  # should be zero.. why is this not zero???
