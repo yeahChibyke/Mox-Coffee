@@ -9,6 +9,13 @@ deployer_script = "script/deploy_mocks.py"
 [networks.pyevm]
 is_zksync = false
 
+[networks.anvil]
+url = "http://127.0.0.1:8545"
+save_to_db = true
+# chain_id = 31337
+default_account_name = "anvkey"
+prompt_live = false
+
 [networks.sepolia]
 url = "$SEPOLIA_URL"
 prompt_live = false
